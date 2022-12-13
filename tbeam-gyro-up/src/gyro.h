@@ -23,28 +23,26 @@ void configureGyro()
 
 void loopGyro()
 {
-    mpu.update();
-    if((millis() - timerGyro) < 10) // yaw = yaw + yaw_rate*dt
-    {
-        yaw = mpu.getAngleZ();
-
-        //set interval 0 <= angle < 360
-        if(yaw >= 360)
-        {
-            divider = yaw / 360;
-            for(int i = 0; i < divider; i++)
-                yaw = yaw - 360;
-        }
-        else if(yaw < 0)
-        {
-            divider = yaw / 360;
-            yaw = yaw + 360;
-            for(int i = 0; i < divider; i++)
-                yaw = yaw + 360;
-        }
-    }
-    if((millis() - timerGyro) > 20)
-        timerGyro = millis();
+  mpu.fetchData();
+  unsigned long timer_new = millis();
+  float dt = (timer_new - timerGyro)*0.001;
+  yaw += mpu.getGyroZ()*dt;
+  timerGyro = timer_new;
+  
+  //set interval 0 <= angle < 360
+  if(yaw >= 360)
+  {
+    divider = yaw / 360;
+    for(int i = 0; i < divider; i++)
+        yaw = yaw - 360;
+  }
+  else if(yaw < 0)
+  {
+    divider = yaw / 360;
+    yaw = yaw + 360;
+    for(int i = 0; i < divider; i++)
+        yaw = yaw + 360;
+  }
 }
 
 void printGyro()
